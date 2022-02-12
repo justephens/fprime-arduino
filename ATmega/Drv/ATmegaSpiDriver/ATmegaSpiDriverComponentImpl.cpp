@@ -14,6 +14,8 @@
 #include <ATmega/Drv/ATmegaSpiDriver/ATmegaSpiDriverComponentImpl.hpp>
 #include "Fw/Types/BasicTypes.hpp"
 
+#include <avr/io.h>
+
 namespace Drv {
 
   // ----------------------------------------------------------------------
@@ -77,7 +79,7 @@ namespace Drv {
   // ----------------------------------------------------------------------
 
   void ATmegaSpiDriverComponentImpl ::
-    SpiReadWrite_handler(
+    spiReadWrite_handler(
         const NATIVE_INT_TYPE portNum,
         Fw::Buffer &writeBuffer,
         Fw::Buffer &readBuffer
@@ -85,12 +87,12 @@ namespace Drv {
   {
       // TODO: only transfer the the min of max size, or stop writing
       //       to read buffer when it is full
-      readBuffer.setSize(writeBuffer.getsize());
-      U8* readBufferData = (U8*)readBuffer.getdata();
-      U8* writeBufferData = (U8*)writeBuffer.getdata();
+      readBuffer.setSize(writeBuffer.getSize());
+      U8* readBufferData = (U8*)readBuffer.getData();
+      U8* writeBufferData = (U8*)writeBuffer.getData();
 
       *m_ss_port &= ~_BV(m_ss_pin);
-      for (NATIVE_UINT_TYPE i = 0; i < writeBuffer.getsize(); i++) {
+      for (NATIVE_UINT_TYPE i = 0; i < writeBuffer.getSize(); i++) {
           SPDR = writeBufferData[i];
           while ( !(SPSR & _BV(SPIF)) );  // TODO: add timeout
           readBufferData[i] = SPDR;
